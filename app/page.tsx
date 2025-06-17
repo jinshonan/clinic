@@ -6,15 +6,17 @@ import Link from "next/link"
 export default function Home() {
   return (  // these are all from globals
     <div className="flex h-screen max-h-screen">
+      {/* TODO: OTP Verification */}
       <section className="remove-scrollbar container my-auto"> 
         <div className="sub-container max-w-[496px]">
-          <Image
+          {/* the logo is hidden */}
+          {/* <Image
             src="/assets/icons/logo-full.svg"
             height={1000}
             width= {1000}
             alt="patient"
             className="mb-12 h10 w-fit"
-          />
+          /> */}
           
           <PatientForm/>
 
