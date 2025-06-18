@@ -9,7 +9,7 @@ export default function Home() {
       {/* TODO: OTP Verification */}
       <section className="remove-scrollbar container my-auto"> 
         <div className="sub-container max-w-[496px]">
-          {/* the logo is hidden */}
+          {/* the logo is here */}
           {/* <Image
             src="/assets/icons/logo-full.svg"
             height={1000}

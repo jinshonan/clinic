@@ -10,7 +10,7 @@ import SubmitButton from "../SubmitButton"
 import { useState } from "react"
 import { UserFormValidation } from "@/lib/validation"
 import { useRouter } from "next/navigation"
-import { createUser } from "@/lib/actions/patient.actions"
+import { createUser } from "@/lib/actions/client.actions"
 
 
 export enum FormFieldType {
@@ -61,8 +61,8 @@ const PatientForm = () => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
         <section className="mb-12 space-y-4">
-            <h1 className="header">こんにちは！</h1>
-            <p className="text-dark-700">予約する</p>
+            <h1 className="header">🐼クリンニック</h1>
+            <p className="text-dark-700">こんにちは！</p>
         </section>
         <CustomFormField
             fieldType={FormFieldType.INPUT}
@@ -79,7 +79,7 @@ const PatientForm = () => {
             control={form.control}
             name="email"
             label="Eメール"
-            placeholder="john@gmail.com"
+            placeholder="yakuza@gmail.com"
             iconSrc="/assets/icons/email.svg"
             iconAlt="email"
         />
@@ -89,7 +89,7 @@ const PatientForm = () => {
             control={form.control}
             name="phone"
             label="電話番号"
-            placeholder="110"
+            placeholder="8088888888"
         />
 
         <SubmitButton isLoading={isLoading}>確認する</SubmitButton>
