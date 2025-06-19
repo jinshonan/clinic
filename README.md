@@ -1,4 +1,4 @@
-# クリンニック用予約WEBアプリ
+# クリンニックWEBアプリケーション
 
 ## テックスタック
 - **フロントエンド**: Next.js, React, TypeScript, TailwindCSS

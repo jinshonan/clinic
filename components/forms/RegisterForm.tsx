@@ -8,12 +8,12 @@ import { Form, FormControl } from "@/components/ui/form"
 import CustomFormField from "@/components/CustomFormField"
 import SubmitButton from "../SubmitButton"
 import { useState } from "react"
-import { UserFormValidation } from "@/lib/validation"
+import { PatientFormValidation, UserFormValidation } from "@/lib/validation"
 import { useRouter } from "next/navigation"
-import { createUser } from "@/lib/actions/client.actions"
+import { registerPatient } from "@/lib/actions/client.actions"
 import { FormFieldType } from "./PatientForm"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
-import { Doctors, GenderOptions, IdentificationTypes } from "@/constants"
+import { Doctors, GenderOptions, IdentificationTypes, PatientFormDefaultValues } from "@/constants"
 import { Label } from "../ui/label"
 import { SelectItem } from "../ui/select"
 import Image from "next/image"
@@ -31,28 +31,62 @@ const RegisterForm = ({ user }: {user: User}) => {
     const [isLoading, setIsLoading] = useState(false);
 
   // 1. Define your form.
-  const form = useForm<z.infer<typeof UserFormValidation>>({
-    resolver: zodResolver(UserFormValidation),
+  const form = useForm<z.infer<typeof PatientFormValidation>>({
+    resolver: zodResolver(PatientFormValidation),
     defaultValues: {
+      ...PatientFormDefaultValues,
       name: "",
       email: "",
       phone: "",
     },
   })
 
-  // 2. Define a submit handler.
-  async function onSubmit({ name, email, phone}: z.infer<typeof UserFormValidation>) {
+    const onSubmit = async (values: z.infer<typeof PatientFormValidation>) => {
     setIsLoading(true);
-    try {
-        const userData = { name, email, phone, };
 
-        const user = await createUser(userData);
+    // Store file info in form data as
+    let formData;
+    if (
+      values.identificationDocument &&
+      values.identificationDocument?.length > 0
+    ) {
+      const blobFile = new Blob([values.identificationDocument[0]], {
+        type: values.identificationDocument[0].type,
+      });
 
-        if(user) router.push(`/patients/${user.$id}/register`)
-    } catch (error) {
-        console.log(error);
+      formData = new FormData();
+      formData.append("blobFile", blobFile);
+      formData.append("fileName", values.identificationDocument[0].name);
     }
-  }
+
+    try {  // for App write to receive the data
+      const patientData = {
+        ...values,
+        userId: user.$id,
+        birthDate: new Date(values.birthDate),
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        identificationDocument: formData,
+      };
+
+
+      const newPatient = await registerPatient(patientData);  
+
+      // debug
+      // console.log('newPatient:', newPatient);
+      // console.log('Type:', typeof newPatient);
+      // console.log('Truthy?', !!newPatient);
+
+      if (newPatient) {
+        router.push(`/patients/${user.$id}/new-appointment`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
+    setIsLoading(false);
+  };
 
   return (
     <Form {...form}>
@@ -65,200 +99,200 @@ const RegisterForm = ({ user }: {user: User}) => {
         <section className="space-y-6">
           <div className="mb-9 space-y-1">
             <h2 className="sub-header">個人情報</h2>
+
+            </div>
+
+            <CustomFormField
+              fieldType={FormFieldType.INPUT}
+              control={form.control}
+              name="name"
+              label="名前"
+              placeholder="桐生一馬"
+              iconSrc="/assets/icons/user.svg"
+              iconAlt="user"
+            />
+
+        <div className="flex flex-col gap-6 xl:flex-row">
+            <CustomFormField
+              fieldType={FormFieldType.INPUT}
+              control={form.control}
+              name="email"
+              label="Eメール"
+              placeholder="yakuza@gmail.com"
+              iconSrc="/assets/icons/email.svg"
+              iconAlt="email"
+            />
+
+            <CustomFormField
+                fieldType={FormFieldType.PHONE_INPUT}
+                control={form.control}
+                name="phone"
+                label="電話番号"
+                placeholder="8088888888"
+            />
+       </div>
+
+          <div className="flex flex-col gap-6 xl:flex-row">
+            <CustomFormField
+                fieldType={FormFieldType.DATE_PICKER}
+                control={form.control}
+                name="birthDate"
+                label="生年月日"
+            />
+
+            <CustomFormField
+                fieldType={FormFieldType.SKELETON}
+                control={form.control}
+                name="gender"
+                label="性別"
+                renderSkeleton={(field) => (
+                  <FormControl>
+                    <RadioGroup className="flex h-11 gap-6 xl:justify-between"
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    >
+                      {GenderOptions.map((option, i) => (
+                        <div key={option + i} className="radio-group">
+                          <RadioGroupItem value={option} id={option} />
+                          <Label htmlFor={option} className="cursor-pointer">
+                            {option}
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </FormControl>
+                )}
+              />
+          </div>
+
+          <div className="flex flex-col gap-6 xl:flex-row">
+              <CustomFormField
+                fieldType={FormFieldType.INPUT}
+                control={form.control}
+                name="address"
+                label="住所"
+                placeholder="新宿区神室町"
+              />
+
+              <CustomFormField
+                fieldType={FormFieldType.INPUT}
+                control={form.control}
+                name="occupation"
+                label="職業"
+                placeholder="エンジニア"
+              />
+          </div>
+
+          <div className="flex flex-col gap-6 xl:flex-row">
+              <CustomFormField
+                fieldType={FormFieldType.INPUT}
+                control={form.control}
+                name="emergencyContactName"
+                label="緊急連絡先"
+                placeholder="お名前"
+              />
+
+              <CustomFormField
+                fieldType={FormFieldType.PHONE_INPUT}
+                control={form.control}
+                name="emergencyContactNumber"
+                label="緊急連絡先"
+                placeholder="電話番号"
+              />
           </div>
         </section>
 
-        <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="name"
-            label="名前"
-            placeholder="桐生一馬"
-            iconSrc="/assets/icons/user.svg"
-            iconAlt="user"
-        />
-
-        <div className="flex flex-col gap-6 xl:flex-row">
-          <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="email"
-            label="Eメール"
-            placeholder="yakuza@gmail.com"
-            iconSrc="/assets/icons/email.svg"
-            iconAlt="email"
-          />
-
-          <CustomFormField
-              fieldType={FormFieldType.PHONE_INPUT}
-              control={form.control}
-              name="phone"
-              label="電話番号"
-              placeholder="8088888888"
-          />
-        </div>
-
-        {/* BirthDate & Gender */}
-        <div className="flex flex-col gap-6 xl:flex-row">
-          <CustomFormField
-              fieldType={FormFieldType.DATE_PICKER}
-              control={form.control}
-              name="birthDate"
-              label="生年月日"
-          />
-
-          <CustomFormField
-              fieldType={FormFieldType.SKELETON}
-              control={form.control}
-              name="gender"
-              label="性別"
-              renderSkeleton={(field) => (
-                <FormControl>
-                  <RadioGroup className="flex h-11 gap-6 xl:justify-between"
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  >
-                    {GenderOptions.map((option, i) => (
-                      <div key={option + i} className="radio-group">
-                        <RadioGroupItem value={option} id={option} />
-                        <Label htmlFor={option} className="cursor-pointer">
-                          {option}
-                        </Label>
-                      </div>
-                    ))}
-                  </RadioGroup>
-                </FormControl>
-              )}
-            />
-        </div>
-
-        <div className="flex flex-col gap-6 xl:flex-row">
-            <CustomFormField
-              fieldType={FormFieldType.INPUT}
-              control={form.control}
-              name="address"
-              label="住所"
-              placeholder="新宿区神室町"
-            />
-
-            <CustomFormField
-              fieldType={FormFieldType.INPUT}
-              control={form.control}
-              name="occupation"
-              label="職業"
-              placeholder="エンジニア"
-            />
-        </div>
-
-        <div className="flex flex-col gap-6 xl:flex-row">
-            <CustomFormField
-              fieldType={FormFieldType.INPUT}
-              control={form.control}
-              name="emergencyContactName"
-              label="緊急連絡先"
-              placeholder="お名前"
-            />
-
-            <CustomFormField
-              fieldType={FormFieldType.PHONE_INPUT}
-              control={form.control}
-              name="emergencyContactNumber"
-              label="緊急連絡先"
-              placeholder="電話番号"
-            />
-        </div>
-
+        {/* causing issues so disabling them */}
         <section className="space-y-6">
           <div className="mb-9 space-y-1">
             <h2 className="sub-header">カルテ</h2>
           </div>
-        </section>
 
-        <CustomFormField
+          <CustomFormField
             fieldType={FormFieldType.SELECT}
             control={form.control}
             name="primaryPhysician"
             label="一次診療医"
             placeholder="医師を選択してください"
-        >
-            {Doctors.map((doctor) => (
-              <SelectItem key={doctor.name} value={doctor.name}>
-                <div className="flex cursor-pointer items-center gap-2">
-                  <Image
-                    src={doctor.image}
-                    width={32}
-                    height={32}
-                    alt="doctor"
-                    className="rounded-full 
-                    border border-dark-500"
-                  />
-                  <p>{doctor.name}</p>
-                </div>
-              </SelectItem>
-            ))}
-        </CustomFormField>
+          >
+              {Doctors.map((doctor) => (
+                <SelectItem key={doctor.name} value={doctor.name}>
+                  <div className="flex cursor-pointer items-center gap-2">
+                    <Image
+                      src={doctor.image}
+                      width={32}
+                      height={32}
+                      alt="doctor"
+                      className="rounded-full 
+                      border border-dark-500"
+                    />
+                    <p>{doctor.name}</p>
+                  </div>
+                </SelectItem>
+              ))}
+          </CustomFormField>
 
-        <div className="flex flex-col gap-6 xl:flex-row">
-            <CustomFormField
-              fieldType={FormFieldType.INPUT}
-              control={form.control}
-              name="insuranceProvider"
-              label="国民健康保険"
-              placeholder="使用する"
-            />
+          <div className="flex flex-col gap-6 xl:flex-row">
+              <CustomFormField
+                fieldType={FormFieldType.INPUT}
+                control={form.control}
+                name="insuranceProvider"
+                label="国民健康保険"
+                placeholder="使用する"
+              />
 
-            <CustomFormField
-              fieldType={FormFieldType.INPUT}
-              control={form.control}
-              name="insurancePolicyNumber"
-              label="マイナンバー"
-              placeholder="ABC123456789"
-            />
-        </div>
+              <CustomFormField
+                fieldType={FormFieldType.INPUT}
+                control={form.control}
+                name="insurancePolicyNumber"
+                label="マイナンバー"
+                placeholder="ABC123456789"
+              />
+          </div>
 
-        <div className="flex flex-col gap-6 xl:flex-row">
-            <CustomFormField
-              fieldType={FormFieldType.TEXTAREA}
-              control={form.control}
-              name="allergies"
-              label="アレルギー"
-              placeholder="花粉"
-            />
+          <div className="flex flex-col gap-6 xl:flex-row">
+              <CustomFormField
+                fieldType={FormFieldType.TEXTAREA}
+                control={form.control}
+                name="allergies"
+                label="アレルギー"
+                placeholder="花粉"
+              />
 
-            <CustomFormField
-              fieldType={FormFieldType.TEXTAREA}
-              control={form.control}
-              name="currentMedication"
-              label="服用した薬"
-              placeholder="ビタミンC 50mg"
-            />
-        </div>
+              <CustomFormField
+                fieldType={FormFieldType.TEXTAREA}
+                control={form.control}
+                name="currentMedication"
+                label="服用した薬"
+                placeholder="ビタミンC 50mg"
+              />
+          </div>
 
-        <div className="flex flex-col gap-6 xl:flex-row">
-            <CustomFormField
-              fieldType={FormFieldType.TEXTAREA}
-              control={form.control}
-              name="familyMedicalHistory"
-              label="家族の病歴"
-              placeholder="なし"
-            />
+          <div className="flex flex-col gap-6 xl:flex-row">
+              <CustomFormField
+                fieldType={FormFieldType.TEXTAREA}
+                control={form.control}
+                name="familyMedicalHistory"
+                label="家族の病歴"
+                placeholder="なし"
+              />
 
-            <CustomFormField
-              fieldType={FormFieldType.TEXTAREA}
-              control={form.control}
-              name="pastMedicalHistory"
-              label="過去の病歴"
-              placeholder="なし"
-            />
-        </div>
+              <CustomFormField
+                fieldType={FormFieldType.TEXTAREA}
+                control={form.control}
+                name="pastMedicalHistory"
+                label="過去の病歴"
+                placeholder="なし"
+              />
+          </div>
+        </section>
 
         <section className="space-y-6">
           <div className="mb-9 space-y-1">
             <h2 className="sub-header">本人確認</h2>
           </div>
-        </section>
 
-        <CustomFormField
+          <CustomFormField
             fieldType={FormFieldType.SELECT}
             control={form.control}
             name="identificationType"
@@ -291,6 +325,7 @@ const RegisterForm = ({ user }: {user: User}) => {
               </FormControl>
             )}
         />
+        </section>
 
         <section className="space-y-6">
           <div className="mb-9 space-y-1">

@@ -1,12 +1,11 @@
 export const GenderOptions = ["男性", "女性"];
 
 export const PatientFormDefaultValues = {
-  firstName: "",
-  lastName: "",
+  name: "",
   email: "",
   phone: "",
   birthDate: new Date(Date.now()),
-  gender: "Male" as Gender,
+  gender: "男性" as Gender,
   address: "",
   occupation: "",
   emergencyContactName: "",
@@ -18,7 +17,7 @@ export const PatientFormDefaultValues = {
   currentMedication: "",
   familyMedicalHistory: "",
   pastMedicalHistory: "",
-  identificationType: "Birth Certificate",
+  identificationType: "マイナンバーカード",
   identificationNumber: "",
   identificationDocument: [],
   treatmentConsent: false,
