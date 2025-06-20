@@ -70,7 +70,7 @@ const RegisterForm = ({ user }: {user: User}) => {
         identificationDocument: formData,
       };
 
-
+      //@ts-ignore
       const newPatient = await registerPatient(patientData);  
 
       // debug

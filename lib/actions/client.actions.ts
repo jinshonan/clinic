@@ -1,5 +1,5 @@
 // for client side actions (test)
-import { Client, Account, Databases, Storage, ID } from "appwrite";
+import { Client, Account, Databases, Storage, ID, Query } from "appwrite";
 import { parseStringify } from "../utils";
 
 // Public config
@@ -18,6 +18,24 @@ const client = new Client()
 const account = new Account(client);
 const databases = new Databases(client);
 const storage = new Storage(client);
+
+// GET PATIENT
+export const getPatient = async (userId: string) => {
+  try {
+    const patients = await databases.listDocuments(
+      DATABASE_ID!,
+      PATIENT_COLLECTION_ID!,
+      [Query.equal("userId", [userId])]
+    );
+
+    return parseStringify(patients.documents[0]);
+  } catch (error) {
+    console.error(
+      "An error occurred while retrieving the patient details:",
+      error
+    );
+  }
+};
 
 // Patient registration
 export const registerPatient = async ({
@@ -54,7 +72,7 @@ export const registerPatient = async ({
   }
 };
 
-
+// Patient creation
 export const createUser = async (user: CreateUserParams) => {
   try {
     return await account.create(
