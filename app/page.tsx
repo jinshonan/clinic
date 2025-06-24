@@ -2,11 +2,15 @@ import { Button } from "@/components/ui/button"
 import PatientForm from "@/components/forms/PatientForm"
 import Image from "next/image"
 import Link from "next/link"
+import { PasskeyModal } from "@/components/PasskeyModal";
 
-export default function Home() {
+const Home = ({ searchParams }: SearchParamProps) => {
+  const isAdmin = searchParams?.admin === "true";
+
   return (  // these are all from globals
     <div className="flex h-screen max-h-screen">
-      {/* TODO: OTP Verification */}
+      {isAdmin && <PasskeyModal />}
+
       <section className="remove-scrollbar container my-auto"> 
         <div className="sub-container max-w-[496px]">
           {/* the logo is here */}
@@ -40,3 +44,5 @@ export default function Home() {
     </div>
   )
 }
+
+export default Home;
