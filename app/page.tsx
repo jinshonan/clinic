@@ -4,7 +4,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { PasskeyModal } from "@/components/PasskeyModal";
 
-const Home = ({ searchParams }: SearchParamProps) => {
+const Home = async ({ searchParams }: SearchParamProps) => {
+  const resolvedSearchParams = await searchParams;  // make it async for the Next.js update
   const isAdmin = searchParams?.admin === "true";
 
   return (  // these are all from globals

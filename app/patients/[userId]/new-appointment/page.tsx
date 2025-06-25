@@ -3,7 +3,7 @@ import Image from "next/image";
 import { AppointmentForm } from "@/components/forms/AppointmentForm";
 import { getPatient } from "@/lib/actions/client.actions";
 
-const Appointment = async ({ params }: SearchParamProps) => {
+const Appointment = async ({ searchParams, params }: SearchParamProps) => {
 　const { userId } = await params;  // breaking change warning for Next.js 15
   const patient = await getPatient(userId);
 

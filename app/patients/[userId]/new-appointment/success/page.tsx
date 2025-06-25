@@ -8,7 +8,8 @@ import { formatDateTime } from "@/lib/utils";
 
 const RequestSuccess = async ({ searchParams, params,}: SearchParamProps) => {
   const { userId } = await params;  // breaking change warning for Next.js 15
-  const appointmentId = (searchParams?.appointmentId as string) || "";
+  const resolvedSearchParams = await searchParams;  // Add this line
+  const appointmentId = (resolvedSearchParams?.appointmentId as string) || "";
   const appointment = await getAppointment(appointmentId);
 
   const doctor = Doctors.find(
