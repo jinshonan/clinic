@@ -4,9 +4,14 @@ import Link from "next/link";
 import RegisterForm from "@/components/forms/RegisterForm";
 import { getUser } from "@/lib/actions/patient.actions";
 
+import * as Sentry from '@sentry/nextjs'
+
 const Register = async ({ params }: SearchParamProps) => {
     const { userId } = await params;  // breaking change warning for Next.js 15
     const user = await getUser(userId);
+
+    // seems not working
+    // Sentry.metrics.set("user_view_reg", user.name);
 
     return (
       <div className="flex h-screen max-h-screen">
