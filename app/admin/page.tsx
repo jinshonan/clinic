@@ -14,7 +14,7 @@ const AdminPage = async () => {
       <header className="admin-header">
         {/* no need for the logo */}
         <Link href="/" className="cursor-pointer">
-            <div>🐼クリンニック</div>
+            <div>🐼クリニック</div>
           {/* <Image
             src="/assets/icons/logo-full.svg"
             height={32}

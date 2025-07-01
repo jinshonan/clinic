@@ -61,7 +61,7 @@ const PatientForm = () => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
         <section className="mb-12 space-y-4">
-            <h1 className="header">🐼クリンニック</h1>
+            <h1 className="header">🐼クリニック</h1>
             <p className="text-dark-700">こんにちは！</p>
         </section>
         <CustomFormField
